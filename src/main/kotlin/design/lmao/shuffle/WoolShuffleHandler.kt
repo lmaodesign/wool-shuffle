@@ -1,5 +1,6 @@
 package design.lmao.shuffle
 
+import gg.scala.flavor.inject.Inject
 import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
 
@@ -10,9 +11,11 @@ import gg.scala.flavor.service.Service
 @Service
 object WoolShuffleHandler
 {
+    @Inject
+    lateinit var plugin: WoolShuffle
+
     @Configure
     fun configure()
     {
-
     }
 }

@@ -21,6 +21,8 @@ dependencies {
     implementation 'org.spigotmc:spigot-api:1.8.8-R0.1-SNAPSHOT'
 
     implementation 'com.github.NoSequel:ScoreboardAPI:d86c2c6d87'
+    implementation 'com.github.mkotb:ConfigAPI:ac23157173'
+
     implementation 'com.github.GrowlyX:flavor:0.1.2'
 }
 
