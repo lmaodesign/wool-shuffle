@@ -5,8 +5,6 @@
 
 /lib
 
-gradle.properties
-
 # Mac
 .DS_Store
 
