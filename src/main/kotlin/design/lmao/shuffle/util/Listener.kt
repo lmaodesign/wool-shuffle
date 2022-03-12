@@ -11,7 +11,7 @@ import org.bukkit.plugin.java.JavaPlugin
  */
 object Listener
 {
-    inline fun <reified T : Event> listenTo() : ListenerBuilder<T>
+    inline fun <reified T : Event> listenTo(): ListenerBuilder<T>
     {
         return ListenerBuilder(T::class.java)
     }
@@ -65,9 +65,11 @@ class ListenerBuilder<T : Event>(private val type: Class<T>)
                 listener,
                 priority,
                 { _, event ->
+                    event as T // haha stupid smart cast work around LOOL L
+
                     for (filter in filters)
                     {
-                        if (!filter.invoke(event as T))
+                        if (!filter.invoke(event))
                         {
                             return@registerEvent
                         }
@@ -75,7 +77,7 @@ class ListenerBuilder<T : Event>(private val type: Class<T>)
 
                     for (function in cancelOn)
                     {
-                        if (function.invoke(event as T) && event is Cancellable)
+                        if (function.invoke(event) && event is Cancellable)
                         {
                             event.isCancelled = true
                         }
@@ -83,7 +85,7 @@ class ListenerBuilder<T : Event>(private val type: Class<T>)
 
                     for (function in handle)
                     {
-                        function.invoke(event as T)
+                        function.invoke(event)
                     }
                 },
                 plugin
