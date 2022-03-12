@@ -13,13 +13,13 @@ object Listener
     }
 }
 
-class ListenerBuilder<T : Event>(val type: Class<T>)
+class ListenerBuilder<T : Event>(private val type: Class<T>)
 {
-    val filters = mutableListOf<Filter<T>>()
-    val cancelOn = mutableListOf<Filter<T>>()
-    val handle = mutableListOf<HandleEvent<T>>()
+    private val filters = mutableListOf<Filter<T>>()
+    private val cancelOn = mutableListOf<Filter<T>>()
+    private val handle = mutableListOf<HandleEvent<T>>()
 
-    var priority: EventPriority = EventPriority.NORMAL
+    private var priority: EventPriority = EventPriority.NORMAL
 
     fun filter(filter: Filter<T>): ListenerBuilder<T>
     {
