@@ -13,6 +13,12 @@ class WoolShuffleConfig
     val maxPlayers = 20
     val minPlayers = 20
 
+    val minimumYLevel = 20
+
+    val spawnCoordinate = Location(
+        Bukkit.getWorld("world"), 5.0, 40.0, 5.0
+    )
+
     @Comment("The arena coordinates.")
     val arenaCoordinates =
         mutableListOf(
