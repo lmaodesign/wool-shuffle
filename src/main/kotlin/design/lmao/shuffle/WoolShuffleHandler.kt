@@ -23,6 +23,7 @@ object WoolShuffleHandler
     lateinit var plugin: WoolShuffle
 
     private lateinit var cuboid: Cuboid
+
     @Configure
     fun configure()
     {
@@ -36,9 +37,11 @@ object WoolShuffleHandler
         cuboid = Cuboid(minimum, maximum)
 
         // set all blocks to wool
-        cuboid.blocks.forEach {
-            it.data = 0
-            it.type = Material.WOOL
+        cuboid.forEach {
+            val block = it.block
+
+            block.data = 0
+            block.type = Material.WOOL
         }
 
         Listener
@@ -67,11 +70,12 @@ object WoolShuffleHandler
 
     fun shuffle(color: ChatColor)
     {
-        cuboid.blocks.forEach {
+        cuboid.forEach {
+            val block = it.block
             val randomColor = ChatColor
                 .values().random()
 
-            it.data = WoolColors
+            block.data = WoolColors
                 .fromChatColor(randomColor)
         }
 
@@ -85,7 +89,8 @@ object WoolShuffleHandler
         val woolData = WoolColors
             .fromChatColor(color)
 
-        cuboid.blocks
+        cuboid
+            .map { it.block }
             .filter { it.data != woolData }
             .forEach {
                 it.type = Material.AIR
