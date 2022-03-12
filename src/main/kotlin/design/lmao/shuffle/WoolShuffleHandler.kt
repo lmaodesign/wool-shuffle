@@ -69,7 +69,7 @@ object WoolShuffleHandler
             }
     }
 
-    fun disqualify(player: Player, lateConnect: Boolean)
+    fun spectate(player: Player)
     {
         player.allowFlight = true
         player.isFlying = true
@@ -92,6 +92,11 @@ object WoolShuffleHandler
                 plugin, ""
             )
         )
+    }
+
+    fun disqualify(player: Player, lateConnect: Boolean)
+    {
+        spectate(player)
 
         player.sendMessage(
             "${ChatColor.DARK_RED}You've been disqualified!"
