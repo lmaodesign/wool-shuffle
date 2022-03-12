@@ -107,8 +107,9 @@ object WoolShuffleHandler
     {
         cuboid.forEach {
             val block = it.block
-            val randomColor = ChatColor
-                .values().random()
+            val randomColor = WoolColors
+                .availableColors
+                .random()
 
             block.data = WoolColors
                 .fromChatColor(randomColor)

@@ -8,6 +8,11 @@ import org.bukkit.ChatColor
  */
 object WoolColors
 {
+    val availableColors = ChatColor.values()
+        .filter {
+            it.isColor
+        }
+
     private val mappings = mapOf(
         ChatColor.DARK_RED to 14,
         ChatColor.RED to 14,

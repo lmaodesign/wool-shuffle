@@ -1,5 +1,9 @@
 package design.lmao.shuffle.util
 
+/**
+ * @author string
+ * @since 3/12/2022
+ */
 object NumberUtil
 {
     fun findMinMaxPair(num1: Long, num2: Long): LongRange

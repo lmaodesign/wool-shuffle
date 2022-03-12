@@ -5,6 +5,10 @@ import org.bukkit.event.Event
 import org.bukkit.event.EventPriority
 import org.bukkit.plugin.java.JavaPlugin
 
+/**
+ * @author string
+ * @since 3/12/2022
+ */
 object Listener
 {
     inline fun <reified T : Event> listenTo() : ListenerBuilder<T>

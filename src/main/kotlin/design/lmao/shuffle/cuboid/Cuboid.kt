@@ -4,7 +4,7 @@ import design.lmao.shuffle.util.NumberUtil
 import org.bukkit.Location
 
 /**
- * @author GrowlyX
+ * @author string
  * @since 3/12/2022
  */
 class Cuboid(
