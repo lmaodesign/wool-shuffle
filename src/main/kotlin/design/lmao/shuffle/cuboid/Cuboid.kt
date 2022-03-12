@@ -53,9 +53,9 @@ class Cuboid(
     }
 }
 
-class CuboidIterator(val cuboid: Cuboid) : Iterator<Location>
+class CuboidIterator(private val cuboid: Cuboid) : Iterator<Location>
 {
-    var currentIndex = 0
+    private var currentIndex = 0
 
     override fun hasNext(): Boolean
     {

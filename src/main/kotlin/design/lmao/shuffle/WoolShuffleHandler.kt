@@ -68,6 +68,9 @@ object WoolShuffleHandler
             }
     }
 
+    /**
+     * Shuffle wool colors for all blocks in the [cuboid].
+     */
     fun shuffle(color: ChatColor)
     {
         cuboid.forEach {
@@ -84,6 +87,10 @@ object WoolShuffleHandler
         )
     }
 
+    /**
+     * Eliminate players who are not on
+     * a block with the color [color].
+     */
     fun eliminate(color: ChatColor)
     {
         val woolData = WoolColors
