@@ -26,6 +26,8 @@ object WoolShuffleHandler
 
     private lateinit var cuboid: Cuboid
 
+    var started = false
+
     @Configure
     fun configure()
     {
@@ -51,7 +53,7 @@ object WoolShuffleHandler
             .filter { it.to.y <= config.minimumYLevel }
             .filter { !it.player.hasMetadata("spectator") }
             .on {
-                disqualify(it.player)
+                disqualify(it.player, false)
             }
 
         Listener
@@ -60,25 +62,14 @@ object WoolShuffleHandler
             .on {
                 val player = it.player
 
-                // TODO: 3/12/22 check if match has been started
+                player.sendMessage("${ChatColor.GREEN}Welcome to ${ChatColor.BOLD}Wool Shuffle${ChatColor.GREEN}!")
 
-                if (plugin.config.maxPlayers >= Bukkit.getOnlinePlayers().size + 1
-                    && !player.hasPermission("shuffle.bypass")
-                )
-                {
-                    player.setMetadata(
-                        "spectator",
-                        FixedMetadataValue(
-                            plugin,
-                            ""
-                        )
-                    )
-                    // TODO: 3/12/22 set player to spectator
-                }
+                if (started)
+                    disqualify(player, true)
             }
     }
 
-    fun disqualify(player: Player)
+    fun disqualify(player: Player, lateConnect: Boolean)
     {
         player.allowFlight = true
         player.isFlying = true
@@ -95,9 +86,23 @@ object WoolShuffleHandler
             }
         }
 
+        player.setMetadata(
+            "spectator",
+            FixedMetadataValue(
+                plugin, ""
+            )
+        )
+
         player.sendMessage(
             "${ChatColor.DARK_RED}You've been disqualified!"
         )
+
+        if (lateConnect)
+        {
+            player.sendMessage(
+                "${ChatColor.RED} You joined too late into the game!"
+            )
+        }
     }
 
     /**
