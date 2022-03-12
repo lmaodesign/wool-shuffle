@@ -1,8 +1,13 @@
 package design.lmao.shuffle
 
+import design.lmao.shuffle.cuboid.Cuboid
+import design.lmao.shuffle.wool.WoolColors
 import gg.scala.flavor.inject.Inject
 import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
+import org.bukkit.Bukkit
+import org.bukkit.ChatColor
+import org.bukkit.Material
 
 /**
  * @author GrowlyX
@@ -14,8 +19,55 @@ object WoolShuffleHandler
     @Inject
     lateinit var plugin: WoolShuffle
 
+    private lateinit var cuboid: Cuboid
+
     @Configure
     fun configure()
     {
+        val config = plugin.config
+
+        val minimum = config
+            .arenaCoordinates[0]
+        val maximum = config
+            .arenaCoordinates[1]
+
+        cuboid = Cuboid(minimum, maximum)
+
+        // set all blocks to wool
+        cuboid.blocks.forEach {
+            it.data = 0
+            it.type = Material.WOOL
+        }
+    }
+
+    fun shuffle(color: ChatColor)
+    {
+        cuboid.blocks.forEach {
+            val randomColor = ChatColor
+                .values().random()
+
+            it.data = WoolColors
+                .fromChatColor(randomColor)
+        }
+
+        Bukkit.broadcastMessage(
+            "${ChatColor.YELLOW}The wool has been shuffled! Run to a $color${color.name}${ChatColor.YELLOW} block!"
+        )
+    }
+
+    fun eliminate(color: ChatColor)
+    {
+        val woolData = WoolColors
+            .fromChatColor(color)
+
+        cuboid.blocks
+            .filter { it.data != woolData }
+            .forEach {
+                it.type = Material.AIR
+            }
+
+        Bukkit.broadcastMessage(
+            "${ChatColor.YELLOW}Players who were not on $color${color.name}${ChatColor.YELLOW} wool were ${ChatColor.RED}ELIMINATED${ChatColor.YELLOW}!"
+        )
     }
 }
