@@ -1,5 +1,6 @@
 package design.lmao.shuffle.cuboid
 
+import design.lmao.shuffle.util.NumberUtil
 import org.bukkit.Location
 
 /**
@@ -25,15 +26,12 @@ class Cuboid(
             throw IllegalArgumentException("first.world is not equal to second.world")
         }
 
-        val minX = first.x.coerceAtMost(second.x).toInt()
-        val minZ = first.z.coerceAtMost(second.z).toInt()
+        val rangeX = NumberUtil.findMinMaxPair(first.x, second.x)
+        val rangeZ = NumberUtil.findMinMaxPair(first.z, second.z)
 
-        val maxX = first.x.coerceAtLeast(second.x).toInt()
-        val maxZ = first.z.coerceAtLeast(second.z).toInt()
-
-        for (x in minX..maxX)
+        for (x in rangeX)
         {
-            for (z in minZ..maxZ)
+            for (z in rangeZ)
             {
                 blocks.add(
                     Location(
