@@ -48,7 +48,7 @@ object WoolShuffleHandler
 
         Listener
             .listenTo<PlayerMoveEvent>()
-            .filter { it.to.y <= 0 }
+            .filter { it.to.y <= config.minimumYLevel }
             .filter { !it.player.hasMetadata("spectator") }
             .on {
                 disqualify(it.player)
