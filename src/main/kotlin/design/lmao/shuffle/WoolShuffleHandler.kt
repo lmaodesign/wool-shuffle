@@ -9,7 +9,9 @@ import gg.scala.flavor.service.Service
 import org.bukkit.Bukkit
 import org.bukkit.ChatColor
 import org.bukkit.Material
+import org.bukkit.entity.Player
 import org.bukkit.event.player.PlayerJoinEvent
+import org.bukkit.event.player.PlayerMoveEvent
 import org.bukkit.metadata.FixedMetadataValue
 
 /**
@@ -45,6 +47,14 @@ object WoolShuffleHandler
         }
 
         Listener
+            .listenTo<PlayerMoveEvent>()
+            .filter { it.to.y <= 0 }
+            .filter { !it.player.hasMetadata("spectator") }
+            .on {
+                disqualify(it.player)
+            }
+
+        Listener
             .listenTo<PlayerJoinEvent>()
             .apply(plugin)
             .on {
@@ -66,6 +76,28 @@ object WoolShuffleHandler
                     // TODO: 3/12/22 set player to spectator
                 }
             }
+    }
+
+    fun disqualify(player: Player)
+    {
+        player.allowFlight = true
+        player.isFlying = true
+
+        player.teleport(
+            plugin.config.spawnCoordinate
+        )
+
+        for (other in Bukkit.getOnlinePlayers())
+        {
+            if (other != player || !other.hasMetadata("spectator"))
+            {
+                player.hidePlayer(other)
+            }
+        }
+
+        player.sendMessage(
+            "${ChatColor.DARK_RED}You've been disqualified!"
+        )
     }
 
     /**
