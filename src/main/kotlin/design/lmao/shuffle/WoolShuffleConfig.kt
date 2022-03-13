@@ -11,7 +11,7 @@ import xyz.mkotb.configapi.comment.Comment
 class WoolShuffleConfig
 {
     val maxPlayers = 20
-    val minPlayers = 20
+    val minPlayers = 2
 
     val minimumYLevel = 20
 
@@ -22,7 +22,7 @@ class WoolShuffleConfig
     @Comment("The arena coordinates.")
     val arenaCoordinates =
         mutableListOf(
-            Location(Bukkit.getWorld("world"), 0.0, 32.0, 0.0),
+            Location(Bukkit.getWorld("world"), -10.0, 32.0, -10.0),
             Location(Bukkit.getWorld("world"), 10.0, 32.0, 10.0)
         )
 

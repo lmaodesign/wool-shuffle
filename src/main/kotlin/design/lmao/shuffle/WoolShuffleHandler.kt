@@ -100,22 +100,37 @@ object WoolShuffleHandler
             .apply(plugin)
             .on {
                 val player = it.player
-                player.inventory.clear()
+                it.joinMessage = "${player.name}${ChatColor.YELLOW} joined!"
 
-                player.removeMetadata("spectator", plugin)
+                player.reset()
+
                 player.sendMessage("${ChatColor.GREEN}Welcome to ${ChatColor.BOLD}Wool Shuffle${ChatColor.GREEN}!")
-
                 player.teleport(config.spawnCoordinate)
 
                 if (started || plugin.config.maxPlayers < Bukkit.getOnlinePlayers().size)
                 {
                     disqualify(player, true)
+                } else if (!started && Bukkit.getOnlinePlayers().size >= config.minPlayers)
+                {
+                    start()
                 }
             }
     }
 
+    fun Player.reset()
+    {
+        inventory.clear()
+
+        health = 20.0
+        foodLevel = 20
+
+        player.removeMetadata("spectator", plugin)
+    }
+
     fun reboot(player: Player)
     {
+        started = false
+
         // set all blocks to wool
         cuboid.forEach {
             val block = it.block
@@ -125,13 +140,12 @@ object WoolShuffleHandler
         }
 
         Bukkit.getOnlinePlayers().forEach {
-            it.removeMetadata("spectator", plugin)
-
             Bukkit.getOnlinePlayers().forEach { other ->
                 other.showPlayer(it)
                 it.showPlayer(other)
             }
 
+            it.reset()
             it.teleport(plugin.config.spawnCoordinate)
         }
 
@@ -151,9 +165,7 @@ object WoolShuffleHandler
 
     fun spectate(player: Player)
     {
-        player.inventory.clear()
-
-        player.health = 20.0
+        player.reset()
 
         player.allowFlight = true
         player.isFlying = true
@@ -270,13 +282,16 @@ object WoolShuffleHandler
         val players = Bukkit.getOnlinePlayers()
             .filter { !it.hasMetadata("spectator") }
 
-        if (players.size == 1)
-        {
-            reboot(players[0])
-        } else
-        {
-            WoolShuffleTask.run()
-        }
+        Schedulers.sync()
+            .delay(20L) {
+                if (players.size == 1)
+                {
+                    reboot(players[0])
+                } else
+                {
+                    WoolShuffleTask.run()
+                }
+            }
     }
 }
 
