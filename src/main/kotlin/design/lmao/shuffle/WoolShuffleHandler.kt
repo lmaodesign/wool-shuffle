@@ -15,6 +15,7 @@ import org.bukkit.entity.Player
 import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.block.BlockPlaceEvent
 import org.bukkit.event.entity.EntityDamageByEntityEvent
+import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.entity.FoodLevelChangeEvent
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.player.PlayerJoinEvent
@@ -59,6 +60,12 @@ object WoolShuffleHandler
         }
 
         Listener
+            .listenTo<EntityDamageEvent>()
+            .apply(plugin)
+            .filter { it.cause == EntityDamageEvent.DamageCause.FALL }
+            .cancelOn { true }
+
+        Listener
             .listenTo<EntityDamageByEntityEvent>()
             .apply(plugin)
             .filter { it.entity is Player }
@@ -93,18 +100,56 @@ object WoolShuffleHandler
             .apply(plugin)
             .on {
                 val player = it.player
-                player.inventory.clear()
+                it.joinMessage = "${player.name}${ChatColor.YELLOW} joined!"
 
-                player.removeMetadata("spectator", plugin)
+                player.reset()
+
                 player.sendMessage("${ChatColor.GREEN}Welcome to ${ChatColor.BOLD}Wool Shuffle${ChatColor.GREEN}!")
-
                 player.teleport(config.spawnCoordinate)
 
                 if (started || plugin.config.maxPlayers < Bukkit.getOnlinePlayers().size)
                 {
                     disqualify(player, true)
+                } else if (!started && Bukkit.getOnlinePlayers().size >= config.minPlayers)
+                {
+                    start()
                 }
             }
+    }
+
+    fun Player.reset()
+    {
+        inventory.clear()
+
+        health = 20.0
+        foodLevel = 20
+
+        player.removeMetadata("spectator", plugin)
+    }
+
+    fun reboot(player: Player)
+    {
+        started = false
+
+        // set all blocks to wool
+        cuboid.forEach {
+            val block = it.block
+
+            block.data = 0
+            block.type = Material.WOOL
+        }
+
+        Bukkit.getOnlinePlayers().forEach {
+            Bukkit.getOnlinePlayers().forEach { other ->
+                other.showPlayer(it)
+                it.showPlayer(other)
+            }
+
+            it.reset()
+            it.teleport(plugin.config.spawnCoordinate)
+        }
+
+        Bukkit.broadcastMessage("${ChatColor.GREEN}The game is over! ${ChatColor.GOLD}${player.name}${ChatColor.GREEN} won!")
     }
 
     fun start()
@@ -120,7 +165,7 @@ object WoolShuffleHandler
 
     fun spectate(player: Player)
     {
-        player.inventory.clear()
+        player.reset()
 
         player.allowFlight = true
         player.isFlying = true
@@ -234,7 +279,19 @@ object WoolShuffleHandler
             "${ChatColor.YELLOW}Players who were not on $color${color.better()}${ChatColor.YELLOW} wool were ${ChatColor.RED}eliminated${ChatColor.YELLOW}!"
         )
 
-        WoolShuffleTask.run()
+        val players = Bukkit.getOnlinePlayers()
+            .filter { !it.hasMetadata("spectator") }
+
+        Schedulers.sync()
+            .delay(20L) {
+                if (players.size == 1)
+                {
+                    reboot(players[0])
+                } else
+                {
+                    WoolShuffleTask.run()
+                }
+            }
     }
 }
 
