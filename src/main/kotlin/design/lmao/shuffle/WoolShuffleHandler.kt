@@ -15,6 +15,7 @@ import org.bukkit.entity.Player
 import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.block.BlockPlaceEvent
 import org.bukkit.event.entity.EntityDamageByEntityEvent
+import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.entity.FoodLevelChangeEvent
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.player.PlayerJoinEvent
@@ -57,6 +58,12 @@ object WoolShuffleHandler
             block.data = 0
             block.type = Material.WOOL
         }
+
+        Listener
+            .listenTo<EntityDamageEvent>()
+            .apply(plugin)
+            .filter { it.cause == EntityDamageEvent.DamageCause.FALL }
+            .cancelOn { true }
 
         Listener
             .listenTo<EntityDamageByEntityEvent>()
@@ -107,6 +114,30 @@ object WoolShuffleHandler
             }
     }
 
+    fun reboot(player: Player)
+    {
+        // set all blocks to wool
+        cuboid.forEach {
+            val block = it.block
+
+            block.data = 0
+            block.type = Material.WOOL
+        }
+
+        Bukkit.getOnlinePlayers().forEach {
+            it.removeMetadata("spectator", plugin)
+
+            Bukkit.getOnlinePlayers().forEach { other ->
+                other.showPlayer(it)
+                it.showPlayer(other)
+            }
+
+            it.teleport(plugin.config.spawnCoordinate)
+        }
+
+        Bukkit.broadcastMessage("${ChatColor.GREEN}The game is over! ${ChatColor.GOLD}${player.name}${ChatColor.GREEN} won!")
+    }
+
     fun start()
     {
         started = true
@@ -121,6 +152,8 @@ object WoolShuffleHandler
     fun spectate(player: Player)
     {
         player.inventory.clear()
+
+        player.health = 20.0
 
         player.allowFlight = true
         player.isFlying = true
@@ -234,7 +267,16 @@ object WoolShuffleHandler
             "${ChatColor.YELLOW}Players who were not on $color${color.better()}${ChatColor.YELLOW} wool were ${ChatColor.RED}eliminated${ChatColor.YELLOW}!"
         )
 
-        WoolShuffleTask.run()
+        val players = Bukkit.getOnlinePlayers()
+            .filter { !it.hasMetadata("spectator") }
+
+        if (players.size == 1)
+        {
+            reboot(players[0])
+        } else
+        {
+            WoolShuffleTask.run()
+        }
     }
 }
 
