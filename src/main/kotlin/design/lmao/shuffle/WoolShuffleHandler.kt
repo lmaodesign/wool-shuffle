@@ -12,6 +12,10 @@ import org.bukkit.Bukkit
 import org.bukkit.ChatColor
 import org.bukkit.Material
 import org.bukkit.entity.Player
+import org.bukkit.event.block.BlockBreakEvent
+import org.bukkit.event.block.BlockPlaceEvent
+import org.bukkit.event.entity.EntityDamageByEntityEvent
+import org.bukkit.event.entity.FoodLevelChangeEvent
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerMoveEvent
@@ -60,6 +64,28 @@ object WoolShuffleHandler
             .cancelOn { started }
 
         Listener
+            .listenTo<FoodLevelChangeEvent>()
+            .apply(plugin)
+            .cancelOn { started }
+
+        Listener
+            .listenTo<EntityDamageByEntityEvent>()
+            .apply(plugin)
+            .filter { it.entity is Player }
+            .filter { it.damager is Player && it.damager.hasMetadata("spectator") }
+            .cancelOn { started }
+
+        Listener
+            .listenTo<BlockPlaceEvent>()
+            .apply(plugin)
+            .cancelOn { started }
+
+        Listener
+            .listenTo<BlockBreakEvent>()
+            .apply(plugin)
+            .cancelOn { started }
+
+        Listener
             .listenTo<PlayerMoveEvent>()
             .apply(plugin)
             .filter { it.to.y <= config.minimumYLevel }
@@ -73,6 +99,7 @@ object WoolShuffleHandler
             .apply(plugin)
             .on {
                 val player = it.player
+                player.inventory.clear()
 
                 player.removeMetadata("spectator", plugin)
                 player.sendMessage("${ChatColor.GREEN}Welcome to ${ChatColor.BOLD}Wool Shuffle${ChatColor.GREEN}!")
@@ -99,6 +126,8 @@ object WoolShuffleHandler
 
     fun spectate(player: Player)
     {
+        player.inventory.clear()
+
         player.allowFlight = true
         player.isFlying = true
 
@@ -108,9 +137,12 @@ object WoolShuffleHandler
 
         for (other in Bukkit.getOnlinePlayers())
         {
-            if (other != player || !other.hasMetadata("spectator"))
+            if (other == player)
+                continue
+
+            if (!other.hasMetadata("spectator"))
             {
-                player.hidePlayer(other)
+                other.hidePlayer(player)
             }
         }
 
@@ -172,7 +204,10 @@ object WoolShuffleHandler
             this.itemMeta = itemMeta
         }
 
-        for (player in Bukkit.getOnlinePlayers())
+        val players = Bukkit.getOnlinePlayers()
+            .filter { !it.hasMetadata("spectator") }
+
+        for (player in players)
         {
             for (i in 0..8)
             {

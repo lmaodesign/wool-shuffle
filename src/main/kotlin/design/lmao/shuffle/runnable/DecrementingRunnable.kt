@@ -23,7 +23,6 @@ abstract class DecrementingRunnable(
         } else if (seconds == 0)
         {
             onEnd()
-            cancel()
         }
     }
 

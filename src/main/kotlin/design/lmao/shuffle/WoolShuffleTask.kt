@@ -15,22 +15,36 @@ object WoolShuffleTask : Runnable
         plugin.config
     }
 
+    private var started = false
+
     override fun run()
     {
-        Schedulers
-            .sync()
-            .delay(config.cooldownTime.toLong()) {
-                WoolShuffleHandler.shuffle()
+        val runnable = {
+            WoolShuffleHandler.shuffle()
 
-                val runnable = EliminationRunnable(
-                    config.shuffleDelay - (WoolShuffleHandler.round * config.shuffleDelayMultiplier)
+            val runnable = EliminationRunnable(
+                config.shuffleDelay - (WoolShuffleHandler.round * config.shuffleDelayMultiplier)
+            )
+
+            Schedulers
+                .sync()
+                .repeating(0L, 20L) {
+                    runnable.run()
+                }
+        }
+
+        if (started)
+        {
+            Schedulers
+                .sync()
+                .delay(
+                    config.cooldownTime.toLong(),
+                    runnable
                 )
-
-                Schedulers
-                    .sync()
-                    .repeating(0L, 20L) {
-                        runnable.run()
-                    }
-            }
+        } else
+        {
+            started = true
+            runnable.invoke()
+        }
     }
 }
