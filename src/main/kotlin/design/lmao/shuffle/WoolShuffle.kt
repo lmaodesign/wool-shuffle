@@ -11,6 +11,12 @@ import xyz.mkotb.configapi.ConfigFactory
  */
 class WoolShuffle : JavaPlugin()
 {
+    companion object
+    {
+        @JvmStatic
+        lateinit var INSTANCE: WoolShuffle
+    }
+
     private val flavor by lazy {
         Flavor.create<WoolShuffle>(
             FlavorOptions(logger)
@@ -25,6 +31,8 @@ class WoolShuffle : JavaPlugin()
 
     override fun onEnable()
     {
+        INSTANCE = this
+
         config = factory.fromFile(
             "settings", WoolShuffleConfig::class.java
         )

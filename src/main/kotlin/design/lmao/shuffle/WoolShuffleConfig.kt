@@ -31,4 +31,7 @@ class WoolShuffleConfig
 
     @Comment("How much the delay decrements by each shuffle.")
     val shuffleDelayMultiplier = 0.6
+
+    @Comment("How mich time should there be in between rounds (in ticks)")
+    val cooldownTime = 100
 }

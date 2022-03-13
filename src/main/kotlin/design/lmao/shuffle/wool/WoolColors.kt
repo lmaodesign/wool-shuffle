@@ -37,4 +37,9 @@ object WoolColors
     {
         return mappings[color]?.toByte() ?: 0
     }
+
+    fun randomColor(): Byte
+    {
+        return fromChatColor(availableColors.random())
+    }
 }

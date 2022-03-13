@@ -1,7 +1,7 @@
 package design.lmao.shuffle
 
-import design.lmao.shuffle.util.Listener
 import design.lmao.shuffle.cuboid.Cuboid
+import design.lmao.shuffle.util.Listener
 import design.lmao.shuffle.wool.WoolColors
 import gg.scala.flavor.inject.Inject
 import gg.scala.flavor.service.Configure
@@ -25,8 +25,10 @@ object WoolShuffleHandler
     lateinit var plugin: WoolShuffle
 
     private lateinit var cuboid: Cuboid
+    lateinit var color: ChatColor
 
     var started = false
+    var round = 1
 
     @Configure
     fun configure()
@@ -50,6 +52,7 @@ object WoolShuffleHandler
 
         Listener
             .listenTo<PlayerMoveEvent>()
+            .apply(plugin)
             .filter { it.to.y <= config.minimumYLevel }
             .filter { !it.player.hasMetadata("spectator") }
             .on {
@@ -67,6 +70,11 @@ object WoolShuffleHandler
                 if (started)
                     disqualify(player, true)
             }
+    }
+
+    fun start()
+    {
+        WoolShuffleTask.start()
     }
 
     fun spectate(player: Player)
@@ -113,17 +121,18 @@ object WoolShuffleHandler
     /**
      * Shuffle wool colors for all blocks in the [cuboid].
      */
-    fun shuffle(color: ChatColor)
+    fun shuffle(
+        color: ChatColor =
+            WoolColors.availableColors.random()
+    )
     {
-        cuboid.forEach {
-            val block = it.block
-            val randomColor = WoolColors
-                .availableColors
-                .random()
+        this.color = color
 
-            block.data = WoolColors
-                .fromChatColor(randomColor)
-        }
+        cuboid
+            .map { it.block }
+            .forEach {
+                it.data = WoolColors.randomColor()
+            }
 
         Bukkit.broadcastMessage(
             "${ChatColor.YELLOW}The wool has been shuffled! Run to a $color${color.name}${ChatColor.YELLOW} block!"
@@ -134,7 +143,7 @@ object WoolShuffleHandler
      * Eliminate players who are not on
      * a block with the color [color].
      */
-    fun eliminate(color: ChatColor)
+    fun eliminate()
     {
         val woolData = WoolColors
             .fromChatColor(color)
