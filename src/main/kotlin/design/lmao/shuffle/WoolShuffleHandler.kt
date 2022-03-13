@@ -2,6 +2,7 @@ package design.lmao.shuffle
 
 import design.lmao.shuffle.cuboid.Cuboid
 import design.lmao.shuffle.util.Listener
+import design.lmao.shuffle.util.Schedulers
 import design.lmao.shuffle.wool.WoolColors
 import gg.scala.flavor.inject.Inject
 import gg.scala.flavor.service.Configure
@@ -77,7 +78,14 @@ object WoolShuffleHandler
     fun start()
     {
         shuffle()
-        WoolShuffleTask.start()
+
+        Bukkit.broadcastMessage("${ChatColor.YELLOW}Wool Shuffle is starting in ${ChatColor.RED}10 ${ChatColor.YELLOW} seconds")
+
+        Schedulers
+            .sync()
+            .delay(200L) {
+                WoolShuffleTask.start()
+            }
     }
 
     fun spectate(player: Player)
