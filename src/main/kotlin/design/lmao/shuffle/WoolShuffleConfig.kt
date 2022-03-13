@@ -27,7 +27,7 @@ class WoolShuffleConfig
         )
 
     @Comment("The delay at which the wool shuffles (in ticks).")
-    val shuffleDelay = 100
+    val shuffleDelay = 5
 
     @Comment("How much the delay decrements by each shuffle.")
     val shuffleDelayMultiplier = 0.6

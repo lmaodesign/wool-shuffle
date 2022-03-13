@@ -1,11 +1,12 @@
 package design.lmao.shuffle
 
+import design.lmao.shuffle.runnable.impl.EliminationRunnable
 import design.lmao.shuffle.util.Schedulers
 import gg.scala.flavor.inject.Inject
 import gg.scala.flavor.service.Service
 
 @Service
-object WoolShuffleTask : Thread()
+object WoolShuffleTask : Runnable
 {
     @Inject
     lateinit var plugin: WoolShuffle
@@ -16,23 +17,20 @@ object WoolShuffleTask : Thread()
 
     override fun run()
     {
-        while (true)
-        {
-            Schedulers
-                .sync()
-                .call {
-                    WoolShuffleHandler.eliminate()
-                }
+        Schedulers
+            .sync()
+            .delay(config.cooldownTime.toLong()) {
+                WoolShuffleHandler.shuffle()
 
-            sleep(config.cooldownTime * 50L)
+                val runnable = EliminationRunnable(
+                    config.shuffleDelay - (WoolShuffleHandler.round * config.shuffleDelayMultiplier)
+                )
 
-            Schedulers
-                .sync()
-                .call {
-                    WoolShuffleHandler.shuffle()
-                }
-
-            sleep(((config.shuffleDelay - (WoolShuffleHandler.round * config.shuffleDelayMultiplier)) * 50).toLong())
-        }
+                Schedulers
+                    .sync()
+                    .repeating(0L, 20L) {
+                        runnable.run()
+                    }
+            }
     }
 }

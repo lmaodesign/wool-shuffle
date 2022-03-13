@@ -1,6 +1,7 @@
 package design.lmao.shuffle
 
 import design.lmao.shuffle.cuboid.Cuboid
+import design.lmao.shuffle.runnable.impl.StartingRunnable
 import design.lmao.shuffle.util.Listener
 import design.lmao.shuffle.util.Schedulers
 import design.lmao.shuffle.wool.WoolColors
@@ -11,8 +12,10 @@ import org.bukkit.Bukkit
 import org.bukkit.ChatColor
 import org.bukkit.Material
 import org.bukkit.entity.Player
+import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerMoveEvent
+import org.bukkit.inventory.ItemStack
 import org.bukkit.metadata.FixedMetadataValue
 
 /**
@@ -52,6 +55,11 @@ object WoolShuffleHandler
         }
 
         Listener
+            .listenTo<InventoryClickEvent>()
+            .apply(plugin)
+            .cancelOn { started }
+
+        Listener
             .listenTo<PlayerMoveEvent>()
             .apply(plugin)
             .filter { it.to.y <= config.minimumYLevel }
@@ -66,7 +74,10 @@ object WoolShuffleHandler
             .on {
                 val player = it.player
 
+                player.removeMetadata("spectator", plugin)
                 player.sendMessage("${ChatColor.GREEN}Welcome to ${ChatColor.BOLD}Wool Shuffle${ChatColor.GREEN}!")
+
+                player.teleport(config.spawnCoordinate)
 
                 if (started || plugin.config.maxPlayers < Bukkit.getOnlinePlayers().size)
                 {
@@ -77,14 +88,12 @@ object WoolShuffleHandler
 
     fun start()
     {
-        shuffle()
-
-        Bukkit.broadcastMessage("${ChatColor.YELLOW}Wool Shuffle is starting in ${ChatColor.RED}10 ${ChatColor.YELLOW} seconds")
+        started = true
 
         Schedulers
             .sync()
-            .delay(200L) {
-                WoolShuffleTask.start()
+            .repeating(0L, 20L) {
+                StartingRunnable.run()
             }
     }
 
@@ -121,6 +130,8 @@ object WoolShuffleHandler
             "${ChatColor.RED}You've been disqualified!"
         )
 
+        Bukkit.broadcastMessage("${player.name}${ChatColor.YELLOW} was disqualified.")
+
         if (lateConnect)
         {
             player.sendMessage(
@@ -146,6 +157,29 @@ object WoolShuffleHandler
                 it.data = WoolColors.randomColor()
             }
 
+        val wool = ItemStack(
+            Material.WOOL, 1,
+            WoolColors
+                .fromChatColor(color)
+                .toShort()
+        ).apply {
+            val itemMeta = this.itemMeta
+            itemMeta.displayName = "$color${color.better()} Wool"
+            itemMeta.lore = mutableListOf(
+                "${ChatColor.GRAY}Stand on this block!"
+            )
+
+            this.itemMeta = itemMeta
+        }
+
+        for (player in Bukkit.getOnlinePlayers())
+        {
+            for (i in 0..8)
+            {
+                player.inventory.setItem(i, wool)
+            }
+        }
+
         Bukkit.broadcastMessage(
             "${ChatColor.YELLOW}The wool has been shuffled! Run to a $color${color.better()}${ChatColor.YELLOW} block!"
         )
@@ -170,9 +204,11 @@ object WoolShuffleHandler
         Bukkit.broadcastMessage(
             "${ChatColor.YELLOW}Players who were not on $color${color.better()}${ChatColor.YELLOW} wool were ${ChatColor.RED}eliminated${ChatColor.YELLOW}!"
         )
+
+        WoolShuffleTask.run()
     }
 }
 
 fun ChatColor.better(): String = name
-    .replace("_", "")
+    .replace("_", " ")
     .lowercase().capitalize()

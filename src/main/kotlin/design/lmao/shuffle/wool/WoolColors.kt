@@ -12,6 +12,9 @@ object WoolColors
         .filter {
             it.isColor
         }
+        .filter {
+            !it.name.contains("DARK")
+        }
 
     private val mappings = mapOf(
         ChatColor.DARK_RED to 14,
