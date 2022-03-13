@@ -8,8 +8,8 @@ object NumberUtil
 {
     fun findMinMaxPair(num1: Long, num2: Long): LongRange
     {
-        val max = num1.coerceAtMost(num2)
-        val min = num1.coerceAtLeast(num2)
+        val max = num1.coerceAtLeast(num2)
+        val min = num1.coerceAtMost(num2)
 
         return min..max
     }

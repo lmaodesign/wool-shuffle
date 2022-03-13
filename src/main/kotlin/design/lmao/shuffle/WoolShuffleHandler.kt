@@ -67,8 +67,10 @@ object WoolShuffleHandler
 
                 player.sendMessage("${ChatColor.GREEN}Welcome to ${ChatColor.BOLD}Wool Shuffle${ChatColor.GREEN}!")
 
-                if (started)
+                if (started || plugin.config.maxPlayers < Bukkit.getOnlinePlayers().size)
+                {
                     disqualify(player, true)
+                }
             }
     }
 
