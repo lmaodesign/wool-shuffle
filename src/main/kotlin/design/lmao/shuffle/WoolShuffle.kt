@@ -1,5 +1,6 @@
 package design.lmao.shuffle
 
+import design.lmao.shuffle.command.ShuffleCommand
 import gg.scala.flavor.Flavor
 import gg.scala.flavor.FlavorOptions
 import org.bukkit.plugin.java.JavaPlugin
@@ -39,6 +40,9 @@ class WoolShuffle : JavaPlugin()
 
         flavor.bind<WoolShuffle>() to this
         flavor.startup()
+
+        this.getCommand("shuffle")
+            .executor = ShuffleCommand
     }
 
     override fun onDisable()
