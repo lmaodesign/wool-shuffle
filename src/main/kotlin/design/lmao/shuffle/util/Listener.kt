@@ -11,9 +11,11 @@ import org.bukkit.plugin.java.JavaPlugin
  */
 object Listener
 {
-    inline fun <reified T : Event> listenTo(): ListenerBuilder<T>
+    inline fun <reified T : Event> listenTo(): ListenerBuilder<T> = listenTo(T::class.java)
+
+    fun <T : Event> listenTo(type: Class<T>): ListenerBuilder<T>
     {
-        return ListenerBuilder(T::class.java)
+        return ListenerBuilder(type)
     }
 }
 

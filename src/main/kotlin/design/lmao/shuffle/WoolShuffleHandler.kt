@@ -59,31 +59,25 @@ object WoolShuffleHandler
         }
 
         Listener
-            .listenTo<InventoryClickEvent>()
-            .apply(plugin)
-            .cancelOn { started }
-
-        Listener
-            .listenTo<FoodLevelChangeEvent>()
-            .apply(plugin)
-            .cancelOn { started }
-
-        Listener
             .listenTo<EntityDamageByEntityEvent>()
             .apply(plugin)
             .filter { it.entity is Player }
             .filter { it.damager is Player && it.damager.hasMetadata("spectator") }
             .cancelOn { started }
 
-        Listener
-            .listenTo<BlockPlaceEvent>()
-            .apply(plugin)
-            .cancelOn { started }
-
-        Listener
-            .listenTo<BlockBreakEvent>()
-            .apply(plugin)
-            .cancelOn { started }
+        listOf(
+            BlockPlaceEvent::class,
+            BlockBreakEvent::class,
+            FoodLevelChangeEvent::class,
+            InventoryClickEvent::class
+        ).forEach {
+            Listener
+                .listenTo(it.java)
+                .apply(plugin)
+                .cancelOn {
+                    started
+                }
+        }
 
         Listener
             .listenTo<PlayerMoveEvent>()
