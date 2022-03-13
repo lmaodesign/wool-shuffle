@@ -76,6 +76,7 @@ object WoolShuffleHandler
 
     fun start()
     {
+        shuffle()
         WoolShuffleTask.start()
     }
 
@@ -109,13 +110,13 @@ object WoolShuffleHandler
         spectate(player)
 
         player.sendMessage(
-            "${ChatColor.DARK_RED}You've been disqualified!"
+            "${ChatColor.RED}You've been disqualified!"
         )
 
         if (lateConnect)
         {
             player.sendMessage(
-                "${ChatColor.RED} You joined too late into the game!"
+                "${ChatColor.GRAY} You joined too late into the game!"
             )
         }
     }
@@ -133,11 +134,12 @@ object WoolShuffleHandler
         cuboid
             .map { it.block }
             .forEach {
+                it.type = Material.WOOL
                 it.data = WoolColors.randomColor()
             }
 
         Bukkit.broadcastMessage(
-            "${ChatColor.YELLOW}The wool has been shuffled! Run to a $color${color.name}${ChatColor.YELLOW} block!"
+            "${ChatColor.YELLOW}The wool has been shuffled! Run to a $color${color.better()}${ChatColor.YELLOW} block!"
         )
     }
 
@@ -158,7 +160,11 @@ object WoolShuffleHandler
             }
 
         Bukkit.broadcastMessage(
-            "${ChatColor.YELLOW}Players who were not on $color${color.name}${ChatColor.YELLOW} wool were ${ChatColor.RED}ELIMINATED${ChatColor.YELLOW}!"
+            "${ChatColor.YELLOW}Players who were not on $color${color.better()}${ChatColor.YELLOW} wool were ${ChatColor.RED}eliminated${ChatColor.YELLOW}!"
         )
     }
 }
+
+fun ChatColor.better(): String = name
+    .replace("_", "")
+    .lowercase().capitalize()

@@ -9,7 +9,7 @@ object ShuffleCommand : CommandExecutor
 {
     override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>): Boolean
     {
-        if (args.size <= 1)
+        if (args.isEmpty())
         {
             sender.sendMessage("usage: /shuffle start")
             return true

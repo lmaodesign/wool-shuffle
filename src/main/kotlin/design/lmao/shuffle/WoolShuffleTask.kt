@@ -32,7 +32,7 @@ object WoolShuffleTask : Thread()
                     WoolShuffleHandler.shuffle()
                 }
 
-            sleep((config.shuffleDelay + (WoolShuffleHandler.round * config.shuffleDelayMultiplier)).toLong())
+            sleep(((config.shuffleDelay - (WoolShuffleHandler.round * config.shuffleDelayMultiplier)) * 50).toLong())
         }
     }
 }
