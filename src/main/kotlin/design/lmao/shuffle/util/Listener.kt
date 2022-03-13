@@ -67,7 +67,13 @@ class ListenerBuilder<T : Event>(private val type: Class<T>)
                 listener,
                 priority,
                 { _, event ->
-                    event as T // haha stupid smart cast work around LOOL L
+                    try
+                    {
+                        event as T // haha stupid smart cast work around LOOL L
+                    } catch (ignored: Exception)
+                    {
+                        return@registerEvent
+                    }
 
                     for (filter in filters)
                     {
